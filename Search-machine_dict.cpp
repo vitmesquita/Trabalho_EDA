@@ -3,6 +3,12 @@
 #include <vector>
 #include <map>
 #include <iterator>
+#include <stdio.h>
+#include <initializer_list>
+#include <iostream>
+#include <iomanip>
+#include <list>
+#include <fstream>
 
 using namespace std;
 
@@ -11,8 +17,10 @@ using namespace std;
 class dictionary{
     public:
     int a = 0;
-    vector<vector<int>> titles;
+    vector<vector<int> > titles;
     map<string,int> dict;
+
+		
     void insert(string word, int id){ //If switch id for titles, the search is a bit faster.
         if (dict.find(word)==dict.end()){ //the word is not in the dictionary
         	dict[word] = a; // referência 
@@ -22,21 +30,35 @@ class dictionary{
         	titles[dict[word]].push_back(id);
 		}
     }
+    
+    void insertlist(string word,vector<int> ids){ // Insert a vector with the ids of a word in the dataset
+    	for (int j=0;j<ids.size();j++) {
+		insert(word,ids[j]); //add every id of the vector using insert function
+		}
+	};
+	void print(string word){
+		for(int k=0;k<titles[dict[word]].size();k++){
+			cout<< titles[dict[word]][k]<<endl;
+		}
+	}
 };
 
 int main(){   
-		
-	vector<string> words = {"the","a","pretty","the"};
-	vector<int> ids = {12,1,45,30};
-	
 	dictionary our_dict;
-	for (int i=0; i<words.size();i++){
-		our_dict.insert(words[i],ids[i]);
-	};
+	our_dict.insertlist("happy",{6,4,5});
+	our_dict.print("happy");
 	
-	cout<< our_dict.dict["pretty"]<<"\n";
-	cout<< our_dict.titles[our_dict.dict["pretty"]][0];
-	
+	char data[80];
+	ifstream arq;
+	arq.open("textsave.txt");
+	if (arq.is_open() && arq.good()){
+		arq>> data;
+		while(!arq.fail()){
+			arq>>data;
+			cout<<data;
+		}
+		arq.close();
+	}
 	return 0;
 }
 
