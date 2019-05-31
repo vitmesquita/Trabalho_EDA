@@ -5,10 +5,11 @@
 #include <iterator>
 #include <stdio.h>
 #include <initializer_list>
-#include <iostream>
 #include <iomanip>
 #include <list>
 #include <fstream>
+#include <string.h>
+#include <typeinfo>
 
 using namespace std;
 
@@ -17,11 +18,11 @@ using namespace std;
 class dictionary{
     public:
     int a = 0;
-    vector<vector<int> > titles;
+    vector<vector<string> > titles;
     map<string,int> dict;
 
 		
-    void insert(string word, int id){ //If switch id for titles, the search is a bit faster.
+    void insert(string word, string id){ //If switch id for titles, the search is a bit faster.
         if (dict.find(word)==dict.end()){ //the word is not in the dictionary
         	dict[word] = a; // referência 
         	titles.push_back({id}) ;// create a vector in a vector and append the related id.
@@ -31,7 +32,7 @@ class dictionary{
 		}
     }
     
-    void insertlist(string word,vector<int> ids){ // Insert a vector with the ids of a word in the dataset
+    void insertlist(string word,vector<string> ids){ // Insert a vector with the ids of a word in the dataset
     	for (int j=0;j<ids.size();j++) {
 		insert(word,ids[j]); //add every id of the vector using insert function
 		}
@@ -39,27 +40,42 @@ class dictionary{
 	void print(string word){
 		for(int k=0;k<titles[dict[word]].size();k++){
 			cout<< titles[dict[word]][k]<<endl;
+			
 		}
 	}
 };
 
 int main(){   
 	dictionary our_dict;
-	our_dict.insertlist("happy",{6,4,5});
-	our_dict.print("happy");
-	
-	char data[80];
 	ifstream arq;
+	string data;
 	arq.open("textsave.txt");
-	if (arq.is_open() && arq.good()){
-		arq>> data;
-		while(!arq.fail()){
-			arq>>data;
-			cout<<data;
-		}
-		arq.close();
-	}
-	return 0;
+	string line;
+	string word;
+	
+	while(getline(arq,line)){
+		data=line.c_str();
+		int index=0;
+		string delimiter = " ";
+		size_t pos = 0;
+		string token;
+		while ((pos = data.find(delimiter)) != std::string::npos) {
+    		token = data.substr(0, pos);
+    	//	std::cout << token << std::endl;
+    		if (index==0){
+    			word=token;
+    			index=index+1;
+			}else{
+				//cout<<word<<token<<endl;
+				our_dict.insert(word,token);
+				index=index+1;
+				//our_dict.print(word);
+			}
+    		data.erase(0, pos + delimiter.length());
+		};
+		our_dict.print(word);
+	};
+	
 }
 
 
