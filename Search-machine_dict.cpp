@@ -32,28 +32,40 @@ class dictionary{
 		}
     }
     
-    void insertlist(string word,vector<string> ids){ // Insert a vector with the ids of a word in the dataset
-    	for (int j=0;j<ids.size();j++) {
-		insert(word,ids[j]); //add every id of the vector using insert function
-		}
-	};
-	void print(string word){
-		for(int k=0;k<titles[dict[word]].size();k++){
-			cout<< titles[dict[word]][k]<<endl;
+	void search(string word){
+		vector<string> answer;
+		word=word+" ";
+		string delimiter = " ";
+		size_t pos = 0;
+		string token;
+		while ((pos = word.find(delimiter)) != std::string::npos) { //fazendo busca para cada palavra
+				token = word.substr(0, pos); 
+    			token="'"+token+"'";
+    			
+			if (dict.find(token)==dict.end()){
+				cout<<"Not found"<<endl;
+				
+			}else{
+    			for(int k=0;k<titles[dict[token]].size();k++){
+					cout<< titles[dict[token]][k]<<endl;
+				}
+			}
+    		word.erase(0, pos + delimiter.length());
+    	}
 			
-		}
-	}
+	};
+	
 };
 
 int main(){   
 	dictionary our_dict;
 	ifstream arq;
 	string data;
-	arq.open("textsave.txt");
+	arq.open("thereal.txt");
 	string line;
-	string word;
+	string title;
 	
-	while(getline(arq,line)){
+	while(getline(arq,line)){ //inserindo no dicionario
 		data=line.c_str();
 		int index=0;
 		string delimiter = " ";
@@ -61,20 +73,17 @@ int main(){
 		string token;
 		while ((pos = data.find(delimiter)) != std::string::npos) {
     		token = data.substr(0, pos);
-    	//	std::cout << token << std::endl;
     		if (index==0){
-    			word=token;
+    			title=token;
     			index=index+1;
 			}else{
-				//cout<<word<<token<<endl;
-				our_dict.insert(word,token);
+				our_dict.insert(title,token);
 				index=index+1;
-				//our_dict.print(word);
 			}
     		data.erase(0, pos + delimiter.length());
 		};
-		our_dict.print(word);
 	};
+	our_dict.search("text here you");
 	
 }
 
