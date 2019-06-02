@@ -10,6 +10,8 @@
 #include <fstream>
 #include <string.h>
 #include <typeinfo>
+#include<bits/stdc++.h>
+#include <algorithm>
 
 using namespace std;
 
@@ -31,9 +33,18 @@ class dictionary{
         	titles[dict[word]].push_back(id);
 		}
     }
+   void singleones(vector<string> name) { 
+		sort(name.begin(),name.end()); //Use the start and end like this
+
+		for (vector<string>::size_type i = 0; i != (name.size()-1); ++i)
+			if (name[i]==name[i+1]) {
+			cout<<name[i]<<" ";
+			}
+	}
     
 	void search(string word){
 		vector<string> answer;
+		int nword=0;
 		word=word+" ";
 		string delimiter = " ";
 		size_t pos = 0;
@@ -47,12 +58,20 @@ class dictionary{
 				
 			}else{
     			for(int k=0;k<titles[dict[token]].size();k++){
-					cout<< titles[dict[token]][k]<<endl;
+    				
+					answer.push_back({ titles[dict[token]][k] });
+					nword=nword+1;
 				}
 			}
     		word.erase(0, pos + delimiter.length());
     	}
-			
+    	if (nword>1){
+    		singleones(answer);
+		}else{
+			for (int l=0;l<answer.size();l++){
+				cout<<answer[l]<<" ";
+			}
+		}
 	};
 	
 };
@@ -64,7 +83,6 @@ int main(){
 	arq.open("thereal.txt");
 	string line;
 	string title;
-	
 	while(getline(arq,line)){ //inserindo no dicionario
 		data=line.c_str();
 		int index=0;
@@ -83,7 +101,7 @@ int main(){
     		data.erase(0, pos + delimiter.length());
 		};
 	};
-	our_dict.search("text here you");
+	our_dict.search("one random");	
 	
 }
 
