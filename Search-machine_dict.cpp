@@ -10,6 +10,8 @@
 #include <fstream>
 #include <string.h>
 #include <typeinfo>
+#include<bits/stdc++.h>
+#include <algorithm>
 
 using namespace std;
 
@@ -20,6 +22,7 @@ class dictionary{
     int a = 0;
     vector<vector<string> > titles;
     map<string,int> dict;
+    map<string,string> title_by_id;
 
 		
     void insert(string word, string id){ //If switch id for titles, the search is a bit faster.
@@ -31,9 +34,18 @@ class dictionary{
         	titles[dict[word]].push_back(id);
 		}
     }
+   void singleones(vector<string> name) { 
+		sort(name.begin(),name.end()); //Use the start and end like this
+
+		for (vector<string>::size_type i = 0; i != (name.size()-1); ++i)
+			if (name[i]==name[i+1]) {
+			cout<<name[i]<<" ";
+			}
+	}
     
 	void search(string word){
 		vector<string> answer;
+		int nword=0;
 		word=word+" ";
 		string delimiter = " ";
 		size_t pos = 0;
@@ -47,14 +59,54 @@ class dictionary{
 				
 			}else{
     			for(int k=0;k<titles[dict[token]].size();k++){
-					cout<< titles[dict[token]][k]<<endl;
+    				
+					answer.push_back({ titles[dict[token]][k] });
+					nword=nword+1;
 				}
 			}
     		word.erase(0, pos + delimiter.length());
     	}
-			
+    	if (nword>1){
+    		singleones(answer);
+		}else{
+			for (int l=0;l<answer.size();l++){
+				cout<<answer[l]<<" ";
+			}
+		}
 	};
 	
+	
+	void insert_titles(){
+		ifstream arq1;
+		string data;
+		arq1.open("title_id.txt"); 
+		string line;
+		string title;
+		string id
+		while(getline(arq1,line)){ //inserindo no dicionário de títulos
+			data=line.c_str();
+			int index=0;
+			string delimiter = " ";
+			size_t pos = 0;
+			string token;
+			while ((pos = data.find(delimiter)) != std::string::npos) {
+    			title = data.substr(0, pos);
+    			data.erase(0, pos + delimiter.length());
+    			id = data;
+    			title_by_id[id] = title;
+    		}    			
+		}
+	}
+
+	
+	
+	void print_titles(string word){ 
+		lista_ids = titles[dict[word]]
+		for (i=0, i<lista_ids.length(), i++){
+			cout<<title_by_id[lista_ids[i]];
+		}
+	}
+		
 };
 
 int main(){   
@@ -64,7 +116,6 @@ int main(){
 	arq.open("thereal.txt");
 	string line;
 	string title;
-	
 	while(getline(arq,line)){ //inserindo no dicionario
 		data=line.c_str();
 		int index=0;
@@ -83,9 +134,9 @@ int main(){
     		data.erase(0, pos + delimiter.length());
 		};
 	};
-	our_dict.search("text here you");
+	our_dict.search("one random");	
+	
+	insert_titles();
+	
 	
 }
-
-
-
