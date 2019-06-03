@@ -12,8 +12,11 @@
 #include <typeinfo>
 #include<bits/stdc++.h>
 #include <algorithm>
+#include <chrono> 
+#include <math.h>
 
 using namespace std;
+using namespace std::chrono;
 
 /* Build a dictionary with the words in the text as keys, and a reference to a vector in a vector, with the IDs as values.*/
 	
@@ -44,6 +47,8 @@ class dictionary{
 	}
     
 	void search(string word){
+		int aux = 0;
+		auto start = high_resolution_clock::now();
 		vector<string> answer;
 		int nword=0;
 		word=word+" ";
@@ -55,21 +60,34 @@ class dictionary{
     			token="'"+token+"'";
     			
 			if (dict.find(token)==dict.end()){
+				auto stop = high_resolution_clock::now();
+				auto duration = duration_cast<microseconds>(stop - start);
+				cout << duration.count()*0.000001 << endl; 
 				cout<<"Not found"<<endl;
 				
-			}else{
-    			for(int k=0;k<titles[dict[token]].size();k++){
-    				
-					answer.push_back({ titles[dict[token]][k] });
+			}else{				
+				word.erase(0, pos + delimiter.length());				
+				if (word.size()==0 && aux==0){ //apenas 1 palavra.
+					cout<<"aqui"<<endl;
+					auto stop = high_resolution_clock::now();
+					auto duration = duration_cast<microseconds>(stop - start);
+					cout << duration.count()*0.000001 << endl;
+					aux = 1;
+					///CHAMAR FUNÇÃO PRINT TÍTULO.#########
+				}else{
 					nword=nword+1;
+					for(int k=0;k<titles[dict[token]].size();k++){    				
+						answer.push_back({ titles[dict[token]][k] });
 				}
 			}
-    		word.erase(0, pos + delimiter.length());
+			}
     	}
     	if (nword>1){
     		singleones(answer);
 		}else{
 			for (int l=0;l<answer.size();l++){
+				auto stop = high_resolution_clock::now();
+				auto duration = duration_cast<microseconds>(stop - start);
 				cout<<answer[l]<<" ";
 			}
 		}
@@ -79,10 +97,10 @@ class dictionary{
 	void insert_titles(){
 		ifstream arq1;
 		string data;
-		arq1.open("title_id.txt"); 
+		arq1.open("myarq.txt"); //title_id
 		string line;
 		string title;
-		string id
+		string id;
 		while(getline(arq1,line)){ //inserindo no dicionário de títulos
 			data=line.c_str();
 			int index=0;
@@ -90,9 +108,9 @@ class dictionary{
 			size_t pos = 0;
 			string token;
 			while ((pos = data.find(delimiter)) != std::string::npos) {
-    			title = data.substr(0, pos);
+    			id = data.substr(0, pos);
     			data.erase(0, pos + delimiter.length());
-    			id = data;
+    			title = data;
     			title_by_id[id] = title;
     		}    			
 		}
@@ -101,8 +119,8 @@ class dictionary{
 	
 	
 	void print_titles(string word){ 
-		lista_ids = titles[dict[word]]
-		for (i=0, i<lista_ids.length(), i++){
+		vector<string> lista_ids = titles[dict[word]];
+		for (int i=0; i<lista_ids.size(); i++){
 			cout<<title_by_id[lista_ids[i]];
 		}
 	}
@@ -113,7 +131,7 @@ int main(){
 	dictionary our_dict;
 	ifstream arq;
 	string data;
-	arq.open("thereal.txt");
+	arq.open("textsave.txt");
 	string line;
 	string title;
 	while(getline(arq,line)){ //inserindo no dicionario
@@ -132,11 +150,10 @@ int main(){
 				index=index+1;
 			}
     		data.erase(0, pos + delimiter.length());
-		};
-	};
-	our_dict.search("one random");	
+		}
+	}
 	
-	insert_titles();
-	
-	
+	 
+	our_dict.search("he");
+	//our_dict.insert_titles();	
 }
