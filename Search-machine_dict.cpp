@@ -14,6 +14,7 @@
 #include <algorithm>
 #include <chrono> 
 #include <math.h>
+#include <set>
 
 using namespace std;
 using namespace std::chrono;
@@ -23,7 +24,7 @@ using namespace std::chrono;
 class dictionary{
     public:
     int a = 0;
-    vector<vector<string> > titles;
+    vector<vector<string>> titles;
     map<string,int> dict;
     map<string,string> title_by_id;
 
@@ -37,67 +38,31 @@ class dictionary{
         	titles[dict[word]].push_back(id);
 		}
     }
-   void singleones(vector<string> name) { 
+    
+   /*void singleones(vector<string> name) { 
 		sort(name.begin(),name.end()); //Use the start and end like this
 
 		for (vector<string>::size_type i = 0; i != (name.size()-1); ++i)
 			if (name[i]==name[i+1]) {
 			cout<<name[i]<<" ";
 			}
-	}
-    
-	void search(string word){
-		int aux = 0;
-		auto start = high_resolution_clock::now();
-		vector<string> answer;
-		int nword=0;
-		word=word+" ";
-		string delimiter = " ";
-		size_t pos = 0;
-		string token;
-		while ((pos = word.find(delimiter)) != std::string::npos) { //fazendo busca para cada palavra
-				token = word.substr(0, pos); 
-    			token="'"+token+"'";
-    			
-			if (dict.find(token)==dict.end()){
-				auto stop = high_resolution_clock::now();
-				auto duration = duration_cast<microseconds>(stop - start);
-				cout << duration.count()*0.000001 << endl; 
-				cout<<"Not found"<<endl;
-				
-			}else{				
-				word.erase(0, pos + delimiter.length());				
-				if (word.size()==0 && aux==0){ //apenas 1 palavra.
-					cout<<"aqui"<<endl;
-					auto stop = high_resolution_clock::now();
-					auto duration = duration_cast<microseconds>(stop - start);
-					cout << duration.count()*0.000001 << endl;
-					aux = 1;
-					///CHAMAR FUNÇÃO PRINT TÍTULO.#########
-				}else{
-					nword=nword+1;
-					for(int k=0;k<titles[dict[token]].size();k++){    				
-						answer.push_back({ titles[dict[token]][k] });
-				}
-			}
-			}
-    	}
-    	if (nword>1){
-    		singleones(answer);
-		}else{
-			for (int l=0;l<answer.size();l++){
-				auto stop = high_resolution_clock::now();
-				auto duration = duration_cast<microseconds>(stop - start);
-				cout<<answer[l]<<" ";
+	}*/
+	
+	vector<string> intersection(vector<string>& vec1, vector<string>& vec2){
+		unordered_set<string> set{vec1.begin(),vec1.end()};
+		vector<string> intersections;
+		for(auto n:vec2){
+			if (set.erase(n)>0){
+				intersections.push_back(n);
 			}
 		}
-	};
-	
+		return intersections;
+	}
 	
 	void insert_titles(){
 		ifstream arq1;
 		string data;
-		arq1.open("myarq.txt"); //title_id
+		arq1.open("title_id.txt"); 
 		string line;
 		string title;
 		string id;
@@ -118,20 +83,83 @@ class dictionary{
 
 	
 	
-	void print_titles(string word){ 
-		vector<string> lista_ids = titles[dict[word]];
+	void print_titles(vector<string> lista_ids){
+		int ndocuments = 0; 
+		vector<string> titles_mixed;
+		for (int i=0; i<lista_ids.size(); i++){ // títulos em ordem alfabética
+			titles_mixed.push_back(title_by_id[lista_ids[i]]);
+			sort(titles_mixed.begin(),titles_mixed.end());
+			
+		}
+		cout<<"Number of documents: "<<lista_ids.size();
 		for (int i=0; i<lista_ids.size(); i++){
-			cout<<title_by_id[lista_ids[i]];
+			cout<<titles_mixed[i]<<endl;
+			
 		}
 	}
-		
-};
+	
+    
+	void search(string word){
+		auto start = high_resolution_clock::now();
+		vector<string> answer;
+		vector<string> word1;
+		int aux = 0;
+		int nword=0;
+		word=word+" ";
+		string delimiter = " ";
+		size_t pos = 0;
+		string token;
+		while ((pos = word.find(delimiter)) != std::string::npos) { //fazendo busca para cada palavra
+				nword += 1;
+				token = word.substr(0, pos); 
+    			token="'"+token+"'";
+			if (dict.find(token)==dict.end()){
+				auto stop = high_resolution_clock::now();
+				auto duration = duration_cast<seconds>(stop - start);
+				cout << "Time of execution: "<<duration.count() <<" seconds"<<  endl; 
+				cout<<token<<" not found"<<endl;
+				word.erase(0, pos + delimiter.length());
+				
+			}else{				
+				word.erase(0, pos + delimiter.length());			
+				if (word.size()==0 && aux==0){  //apenas 1 palavra.
+										
+					auto stop = high_resolution_clock::now();
+					auto duration = duration_cast<seconds>(stop - start);
+					cout <<  "Time of execution: "<<duration.count() <<" seconds" << endl;
+									
+					print_titles(titles[dict[token]]);
+					
+				}else{ //mais de 1 palavra
+					aux = 1; //última palavra não entra no if.
+					if (nword==1){
+						word1 = titles[dict[token]];
+					}else{
+						word1 = intersection(word1,titles[dict[token]]);
+					}
+				}
+			}
+		}
+		if (nword>1){			
+			auto stop = high_resolution_clock::now();
+			auto duration = duration_cast<seconds>(stop - start);
+			cout <<  "Time of execution: "<<duration.count() <<" seconds" << endl;
+			print_titles(word1);	
+		}
+		cout<<nword;
+			
+	}
+			
+	};
+    	
+    		
+
 
 int main(){   
 	dictionary our_dict;
 	ifstream arq;
 	string data;
-	arq.open("textsave.txt");
+	arq.open("textsave.txt"); //textsave
 	string line;
 	string title;
 	while(getline(arq,line)){ //inserindo no dicionario
@@ -153,7 +181,11 @@ int main(){
 		}
 	}
 	
-	 
-	our_dict.search("he");
-	//our_dict.insert_titles();	
+	our_dict.insert_titles();
+	our_dict.search("sea cast hospital");
+	
+	
+
+
+
 }
